@@ -1,0 +1,5 @@
+name = "evidence_logic"
+defaultTargets = ["EvidenceLogic"]
+
+[[lean_lib]]
+name = "EvidenceLogic"
