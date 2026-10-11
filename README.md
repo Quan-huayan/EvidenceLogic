@@ -143,6 +143,8 @@ EvidenceLogic/
     仍是模型（`th_isModel`），并给出**每阈值一条**的参数化不变量 `th_supp_le`；
     `thSuppP_not_transitive`（**零公理**）对任意 `U` 给出非传递见证 ⇒ 破坏传递性的是
     "阈值**形状**"而不是 `⊤` 这个具体集合（`U = ⊤` 时即 `Canon.suppP_not_transitive`）。
+    与典范框架的障碍联用还可再逼一层：`b` 关系自由时，反例处**每个** `U ≠ ⊤` 都迫使
+    `⟦c⟧_{th_U} = ⊤`（`canon_middle_noRel_supported_top_in_threshold`）。
 
 # 未证与已修正（诚实清单，详见 [`docs/讨论与局限.md`](docs/讨论与局限.md) 第 7 节）
 

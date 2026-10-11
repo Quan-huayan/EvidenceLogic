@@ -54,6 +54,7 @@
 * 未使用的绑定一律写 `_`，不使用 `sorry`／`axiom`／`admit`。
 -/
 import EvidenceLogic.Model.Strict
+import EvidenceLogic.Model.Threshold
 import EvidenceLogic.Frontier.RestrictedE
 
 namespace EvidenceLogic
@@ -277,6 +278,39 @@ theorem s7_countermodel_needs_rel' (W : Type) [Nonempty W]
     ¬ (NoRel a ∧ NoRel φ ∧ NoRel b ∧ NoRel ψ) :=
   fun hrel => s7_countermodel_needs_rel W atomRel h₁ h₂ h
     ⟨⟨hrel.1, hrel.2.2.1⟩, ⟨hrel.2.1, hrel.2.2.2⟩⟩
+
+/-! ### 由阈值族得到的第三条必要条件（「被支持公式在每个非典范阈值模型中都为 `⊤`」）
+
+`System/NonAdmissible.lean` 第十二节已把反例处**中间项真值**逼成 `⊤`
+（`support_transitivity_middle_truth_top`）。把**阈值族**（`Model/Threshold.lean`）接上去，
+可以再逼一层：若中间公式 `b` **关系自由**（于是 `⟦b⟧` 与 `suppI`／`refutI` 无关），
+则在**每一个**阈值 `U ≠ ⊤` 的模型里，**被支持公式 `c` 的真值都必须是 `⊤`**。 -/
+
+/-- **第三条必要条件（机器验证）**：设 `Derivable (b ⊳ c)`、`b` 关系自由，
+且在典范基结构上 `⟦b⟧ρ = ⊤`（反例处由 `support_transitivity_middle_truth_top` 被迫成立）。
+则对**任意** `U ≠ ⊤`，都有 `(thBase W atomRel U).truth c ρ = ⊤`。
+
+理由：`th_supp_le` 给出 `thSuppP U ⟦b⟧_{th_U} ⟦c⟧_{th_U}`；由 `NoRel b` 把
+`⟦b⟧_{th_U}` 换成 `⟦b⟧_C = ⊤`，三项析取中 `⊤ = U` 被 `U ≠ ⊤` 排除，剩下即得。
+
+**读法**：这是对 `c` 的一条**跨模型**限制——若 `c` 关系自由，则
+`⟦c⟧_{th_U} = ⟦c⟧_C = ⊤`，与「反例处 `⟦c⟧_C ≠ ⊤`」直接矛盾；
+故 `c` 必须含关系子公式，且它在**所有**非典范阈值模型中都取全集。 -/
+theorem canon_middle_noRel_supported_top_in_threshold (W : Type) [Nonempty W]
+    (atomRel : Nat → List (PSet W) → PSet W) {b c : Form} (h₂ : Derivable (b ⊳ c))
+    (hb : NoRel b) (ρ : Nat → PSet W)
+    (hb_top : (Canon.base W atomRel).truth b ρ = ⊤) (U : PSet W) (hU : U ≠ ⊤) :
+    (thBase W atomRel U).truth c ρ = ⊤ := by
+  have h1 := th_supp_le W atomRel U h₂ ρ
+  have hb' : (thBase W atomRel U).truth b ρ = ⊤ := by
+    rw [truth_noRel_eq_canon atomRel (fun X Y => (⟨fun _ => thSuppP U X Y⟩ : PSet W))
+      (fun X Y => (⟨fun _ => thRefutP U X Y⟩ : PSet W)) (φ := b) hb ρ]
+    exact hb_top
+  rw [hb'] at h1
+  rcases h1 with h | h | h
+  · exact PSet.eq_top_of_le h
+  · exact absurd h.symm hU
+  · exact h
 
 /-! ## 4. 与既有障碍链的关系（不要夸大）
 
