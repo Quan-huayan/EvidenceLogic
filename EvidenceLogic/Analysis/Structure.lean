@@ -4,7 +4,8 @@
 本文件把「证据语义」的结构性质单独列出并机器验证，供
 [`docs/证据语义解读.md`](../../docs/证据语义解读.md) 的解读引用。
 
-**证据语义**（`Canonical.lean`，也是唯一已知的模型族）：
+**证据语义**（`Canonical.lean`，两个已知模型族中定稿采用的那一个；另一个是
+[`Strict.lean`](../Model/Strict.lean) 的严格蕴含框架）：
 
 ```
 X ⊳ Y  ⟺  X ≤ Y  ∨  X = ⊤  ∨  Y = ⊤          （suppP）

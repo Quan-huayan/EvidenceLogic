@@ -22,6 +22,7 @@ import EvidenceLogic.Core.Syntax
 import EvidenceLogic.Model.Semantics
 import EvidenceLogic.Model.Canonical
 import EvidenceLogic.Model.Soundness
+import EvidenceLogic.Model.Strict
 
 -- System：证明系统与定稿第八／九／十节
 import EvidenceLogic.System.Derivable
@@ -49,3 +50,4 @@ import EvidenceLogic.Frontier.Probe
 import EvidenceLogic.Frontier.Obstruction
 import EvidenceLogic.Frontier.SingleLayer
 import EvidenceLogic.Frontier.SingleLayerFull
+import EvidenceLogic.Frontier.NoRelFragment

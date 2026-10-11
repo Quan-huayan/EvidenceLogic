@@ -4,7 +4,7 @@
 > 外加一层在其语义上做的**证据语义分析**。全库**无 `sorry`、无自定义 `axiom`、零警告**。
 
 ```powershell
-lake build     # 29 jobs，零错误零警告
+lake build     # 31 jobs，零错误零警告
 ```
 
 ## 三十秒
@@ -12,7 +12,8 @@ lake build     # 29 jobs，零错误零警告
 | 问题 | 答案 |
 |---|---|
 | **定稿被证到什么程度？** | 第十节 12 条"推不出"拿下 **10 条规则级非可容许**（前提全部可推导、结论不可推导）；剩下 **支持传递** 与 **S7** |
-| **剩下两条卡在哪？** | 障碍链：无 `E` 片段 → "`E` 只作用于关系自由公式" → 条件化收敛到**一条引理** `TransferLemma`。该引理**未证、也未被反驳**（反驳搜索 16384 组无反例） |
+| **剩下两条卡在哪？** | 三条**互不包含**的路线：① 禁用／受限 `E`（`EFree`／`RestrictedE`）② 条件化到**一条引理** `TransferLemma`（未证、未被反驳；反驳搜索 16384 组无反例）③ **新**：全量 `Derivable` 在**关系自由分量**上**无条件**成立（`NoRelFragment`）⇒ 任何反例都**必须**含关系子公式 |
+| **语义只有一族吗？** | **不是**。`Strict.lean` 给出**第二个模型族**（被定稿拒绝的朴素 `X ≤ Y` 读法），并证明它**也是模型** ⇒ 定稿"否则支持传递将成为有效式"的设计理由成为**定理**（`strict_transitivity_rule_valid`） |
 | **最硬的三个新结果？** | ① `⊲` **不能**由 `⊳` 与 `¬` 定义（"独立原语"在语义上有据）② 证据项的**正向刻画**（原子支持者根 ∈ `{e,s1,s2,f1,f4}`，**紧**）③ 可靠性 = 显式 `Derivable.rec` 折叠（初始代数到模型的唯一同态） |
 | **哪里没证？** | 见 [`docs/讨论与局限.md`](docs/讨论与局限.md) 第 7 节：一条前沿 + 五处被机器检查**推翻或修正**的分析 |
 
@@ -28,17 +29,18 @@ lake build     # 29 jobs，零错误零警告
 
 ---
 
-# 模块（26 个，**目录即分层**）
+# 模块（28 个，**目录即分层**）
 
 ```
 EvidenceLogic/
 ├── Core/      语言与基础     Prelude · Syntax
-├── Model/     语义与模型论   Semantics · Canonical · Soundness
+├── Model/     语义与模型论   Semantics · Canonical · Soundness · Strict
 ├── System/    证明系统与定稿 Derivable · Properties · Derived · NonDerivable · NonAdmissible
 ├── Analysis/  证据语义分析   Structure · Disjuncts · Algebra · Evidence · Initiality
 │                            · Inversion · InversionRefut · NormalForm
 └── Frontier/  唯一前沿       EFree · RestrictedE · Transfer · Conditional
                              · Probe · Obstruction · SingleLayer · SingleLayerFull
+                             · NoRelFragment
 ```
 
 （**定理名与命名空间不随目录变化**，仍是 `EvidenceLogic.*`——`Canon.isModel`、`Derivable.soundness` 等照旧。）
@@ -57,6 +59,7 @@ EvidenceLogic/
 | [`Semantics.lean`](EvidenceLogic/Model/Semantics.lean) | **语义**：命题层 `PSet`、真值索引的经典基 `Base`（定义 `⊢`）、语法索引的背书框架 `Frame`、模型类 `IsModel` |
 | [`Canonical.lean`](EvidenceLogic/Model/Canonical.lean) | 典范（自由）模型族与存在性定理：满足全部规则的最一般语义 |
 | [`Soundness.lean`](EvidenceLogic/Model/Soundness.lean) | 可靠性：`⊢ᴱ φ ⇒ M ⊨ φ`（对一切模型） |
+| [`Strict.lean`](EvidenceLogic/Model/Strict.lean) | **第二模型族**（严格蕴含框架：`X ⊳ Y ⟺ X ≤ Y`）；`strict_isModel` ⇒ **全量 `Derivable` 的**无条件不变量 `strict_supp_le`；`strict_transitivity_rule_valid` 把定稿的设计理由证明成定理 |
 
 ## `System/` —— 证明系统与定稿第八／九／十节
 
@@ -98,6 +101,7 @@ EvidenceLogic/
 | [`Obstruction.lean`](EvidenceLogic/Frontier/Obstruction.lean) | **反驳搜索**：`PUnit` 上 256 基结构 × 32 关系式 = 16384 组，**0 反例**；朴素候选族整族排除 |
 | [`SingleLayer.lean`](EvidenceLogic/Frontier/SingleLayer.lean) | λ-探针 ＋ `probe_pair`（对任意 `S` 的通用等式，零实例归约） |
 | [`SingleLayerFull.lean`](EvidenceLogic/Frontier/SingleLayerFull.lean) | **单层情形完整闭合**（`TransferLemma` 的深度 +1 片段） |
+| [`NoRelFragment.lean`](EvidenceLogic/Frontier/NoRelFragment.lean) | **关系自由分量（无条件、全量 `Derivable`）**：`supp_le_canon_of_noRel`；两条障碍的收窄 `countermodel_needs_rel`／`s7_countermodel_needs_rel`（反例必须含关系子公式） |
 
 ## 汇总
 
@@ -123,12 +127,21 @@ EvidenceLogic/
    故"用 `Prop` 还是 `Type`"是实质承诺，也解释了"正向刻画"为何在 `Prop` 呈现下受限。
 7. **两条残余规则的障碍链**：无 `E` 片段 → 受限 `E` 片段 → `TransferLemma`（**一条引理**）⇒
    支持传递／S7 的 N3 障碍 ⇒ `TruthPropagation`。条件化链条已机器验证。
+8. **第二个模型族**（`Strict.lean`）：把定稿**拒绝**的朴素 `X ≤ Y` 读法做成框架并证明它**也是模型**
+   ——于是"否则支持传递将成为有效式"成为定理（`strict_transitivity_rule_valid`）；
+   在这个框架上，**全量 `Derivable`**（含任意 `E`）的支持-蕴含不变量**无条件**成立
+   （`strict_supp_le`，本工程第一条这样的结果）。
+9. **关系自由区的无条件不变量与障碍收窄**（`NoRelFragment.lean`）：由"命题层是常值／`suppI` 无关"
+   这座桥把第 8 条搬到**典范框架**，得 `supp_le_canon_of_noRel`（全量 `Derivable`，**不需** `TransferLemma`，
+   代价是分量 `NoRel`）；由此 **支持传递／S7 的典范框架反例必须含关系子公式**
+   （`countermodel_needs_rel`／`s7_countermodel_needs_rel`）——与既有的"反例处 `⟦b⟧ = ⊤`"是**独立**的语法限制。
 
 # 未证与已修正（诚实清单，详见 [`docs/讨论与局限.md`](docs/讨论与局限.md) 第 7 节）
 
 * **唯一实质前沿**：`TransferLemma`（一般形式）——**未证、未被反驳**。
   它不成立时只意味着现有唯一路线失效，**不**等于推翻"支持传递／S7 是 admissible 但不可导出"的判断
-  （该引理是**充分**条件，必要性未知）。
+  （该引理是**充分**条件，必要性未知）。第 8／9 条给出的是**绕过它的另一条路线在关系自由区成立**，
+  并不解决一般情形（`NoRel` 是分量上的强语法限制）。
 * **未完成/未判定项**：`Algebra` 的个别方向律、`Initiality.completeness_as_injectivity`（只作陈述）等。
 * **五处被机器检查推翻或修正的分析**：析取项数（我曾写"三项/四项最小装置"）、反演假设（我曾写
   "`f1/f4` 也被排除"）、`refutP` 端点支（曾记"数学上成立"）、不变量的适用范围（曾要求任意模型）、
