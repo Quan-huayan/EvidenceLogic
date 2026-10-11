@@ -31,13 +31,17 @@
    都是它的特例），以及到 `Canon.base`／`strictBase` 的两条推论；
 2. 第 2 节：`supp_le_canon_of_noRel`——**全量 `Derivable` ＋ `NoRel` 分量**的
    条件零假设支持-蕴含不变量（典范基结构版与典范框架版）；
-3. 第 3 节：`transitivity_valid_canon_of_noRel`／`s7_valid_canon_of_noRel` 与
-   两条「反模型必须含关系子公式」的必要条件。
+3. 第 3 节：**结论分量**关系自由区——`transitivity_le_canon_of_noRel`／
+   `transitivity_valid_canon_of_noRel`（**中间公式可以任意**，由 `strict_supp_le_trans` 串联）、
+   `s7_valid_canon_of_noRel`，以及两条同形的必要条件
+   `countermodel_needs_rel`／`s7_countermodel_needs_rel`（**结论的某个分量必须含关系子公式**）。
 
-## 2. 为什么第 2 节成立（一句话）
+## 2. 为什么第 2、3 节成立（一句话）
 
 `strict_supp_le` 给出**严格蕴含基结构**上的 `⟦p⟧ ≤ ⟦q⟧`；而 `NoRel` 公式的真值
 与 `suppI`／`refutI` 无关（第 1 节），于是这条不等式在**典范基结构**上同样成立。
+第 3 节的支持传递版更进一步：把 `strict_supp_le` 对两条前提各用一次并**串联**，
+直接得到 `⟦a⟧_strict ≤ ⟦c⟧_strict`——**完全不需要中间公式 `b` 关系自由**。
 关键点是：严格框架的 `supp` 内容**没有任何析取项**，所以这里**不需要**典范框架
 那条「三个析取项」的分析——`suppP` 的那个 `Y = ⊤` 析取项（`Analysis/Structure.lean`
 第六节指出它是唯一破坏传递性的装置）在关系自由分量上被整条绕开。
@@ -178,37 +182,43 @@ theorem supp_le_canon_of_noRel (W : Type) [Nonempty W]
   rw [Canon.frame_truth W atomRel p ρ, Canon.frame_truth W atomRel q ρ]
   exact supp_le_canon_base_of_noRel W atomRel h hp hq ρ
 
-/-! ## 3. 两条 N3 障碍的收窄：反模型必须含关系子公式 -/
+/-! ## 3. 两条 N3 障碍的收窄：**结论的两个分量**必须含关系子公式 -/
 
-/-- **支持传递（关系自由区）**：若中间公式 `b` 与被支持公式 `c` 都关系自由，
+/-- **支持传递：结论分量的不等式（全量 `Derivable`、无条件）**：只要**结论**
+`a ⊳ c` 的两个分量关系自由，就有 `⟦a⟧ ≤ ⟦c⟧`，而**中间公式 `b` 可以任意**
+（可以含关系子公式）。
+
+证明走 [`Model/Strict.lean`]：`strict_supp_le_trans` 在**严格蕴含框架**上把两条前提串成
+`⟦a⟧_strict ≤ ⟦c⟧_strict`（那里没有任何析取项），再把两侧用
+`truth_strictBase_eq_canon`（第 1 节）搬回典范基结构。
+
+**这严格强于**只用典范框架能得到的版本（那一版还要求 `NoRel b`）：
+`a`、`c` 是**结论**的分量，`b` 只是中间项。 -/
+theorem transitivity_le_canon_of_noRel (W : Type) [Nonempty W]
+    (atomRel : Nat → List (PSet W) → PSet W) {a b c : Form}
+    (h₁ : Derivable (a ⊳ b)) (h₂ : Derivable (b ⊳ c)) (ha : NoRel a) (hc : NoRel c) :
+    ∀ ρ : Nat → PSet W,
+      (Canon.base W atomRel).truth a ρ ≤ (Canon.base W atomRel).truth c ρ := by
+  intro ρ
+  have hchain := strict_supp_le_trans W atomRel h₁ h₂ ρ
+  rwa [truth_strictBase_eq_canon atomRel ha ρ, truth_strictBase_eq_canon atomRel hc ρ] at hchain
+
+/-- **支持传递（结论分量关系自由区）**：若**结论** `a ⊳ c` 的两个分量都关系自由，
 则 `a ⊳ c` 在**一切**典范框架中有效——于是 `not_derivable_of_countermodel`
 在这条路线上**走不通**。
 
-证明只用到 `⟦b⟧ρ ≤ ⟦c⟧ρ`（第 2 节）与两个前提在典范框架中的有效性
-（`Derivable.soundness`）：把 `suppP ⟦a⟧ ⟦b⟧` 的三个析取项逐一传到 `⟦a⟧ ≼ ⟦c⟧`。
-注意**不**需要 `NoRel a`：支持者可以是任意公式。 -/
+注意假设里**没有** `NoRel b`：中间公式可以任意。 -/
 theorem transitivity_valid_canon_of_noRel (W : Type) [Nonempty W]
     (atomRel : Nat → List (PSet W) → PSet W) {a b c : Form}
-    (h₁ : Derivable (a ⊳ b)) (h₂ : Derivable (b ⊳ c)) (hb : NoRel b) (hc : NoRel c) :
+    (h₁ : Derivable (a ⊳ b)) (h₂ : Derivable (b ⊳ c)) (ha : NoRel a) (hc : NoRel c) :
     (Canon.frame W atomRel).Valid (a ⊳ c) := by
-  obtain ⟨w₀⟩ := (inferInstance : Nonempty W)
-  have hM : IsModel (Canon.frame W atomRel) := Canon.isModel W atomRel
   intro ρ
-  have hs : Canon.suppP ((Canon.frame W atomRel).truth a ρ)
-      ((Canon.base W atomRel).truth b ρ) :=
-    (PSet.const_eq_top_iff w₀).mp (Derivable.soundness (Canon.frame W atomRel) hM h₁ ρ)
-  have hbc : (Canon.base W atomRel).truth b ρ ≤ (Canon.base W atomRel).truth c ρ := by
-    have hle := supp_le_canon_of_noRel W atomRel h₂ hb hc ρ
-    rwa [Canon.frame_truth W atomRel b ρ, Canon.frame_truth W atomRel c ρ] at hle
-  have hs' : Canon.suppP ((Canon.frame W atomRel).truth a ρ)
-      ((Canon.base W atomRel).truth c ρ) := by
-    rcases hs with h | h | h
-    · exact Or.inl (PSet.le_trans h hbc)
-    · exact Or.inr (Or.inl h)
-    · exact Or.inr (Or.inr (PSet.eq_top_of_le (h ▸ hbc)))
+  have hle : (Canon.frame W atomRel).truth a ρ ≤ (Canon.base W atomRel).truth c ρ := by
+    rw [Canon.frame_truth W atomRel a ρ]
+    exact transitivity_le_canon_of_noRel W atomRel h₁ h₂ ha hc ρ
   show (⟨fun _ => Canon.suppP ((Canon.frame W atomRel).truth a ρ)
     ((Canon.base W atomRel).truth c ρ)⟩ : PSet W) = ⊤
-  exact PSet.eq_top_of_le (fun _ _ => hs')
+  exact PSet.eq_top_of_le (fun _ _ => Or.inl hle)
 
 /-- **S7（关系自由区）**：若四条分量子公式都关系自由，则 `(a ∧ b) ⊳ (φ ∧ ψ)`
 在**一切**典范框架中有效。
@@ -240,35 +250,46 @@ theorem s7_valid_canon_of_noRel (W : Type) [Nonempty W]
   exact PSet.eq_top_of_le (fun _ _ => Or.inl hleft)
 
 /-- **反模型的必要条件（支持传递，机器验证）**：若 `a ⊳ c` 在某个典范框架中不有效，
-而两个前提都可推导，则中间公式 `b` 与被支持公式 `c` **不可能都**关系自由——
-即反模型**必须**在 `b` 或 `c` 中含关系子公式。 -/
+而两个前提都可推导，则**结论的两个分量 `a`、`c` 不可能都**关系自由——
+即反模型**必须**让 `a` 或 `c` 含关系子公式；中间公式 `b` 不受此限制。 -/
 theorem countermodel_needs_rel (W : Type) [Nonempty W]
     (atomRel : Nat → List (PSet W) → PSet W) {a b c : Form}
     (h₁ : Derivable (a ⊳ b)) (h₂ : Derivable (b ⊳ c))
-    (h : ¬ (Canon.frame W atomRel).Valid (a ⊳ c)) : ¬ (NoRel b ∧ NoRel c) :=
-  fun hbc => h (transitivity_valid_canon_of_noRel W atomRel h₁ h₂ hbc.1 hbc.2)
+    (h : ¬ (Canon.frame W atomRel).Valid (a ⊳ c)) : ¬ (NoRel a ∧ NoRel c) :=
+  fun hac => h (transitivity_valid_canon_of_noRel W atomRel h₁ h₂ hac.1 hac.2)
 
-/-- **反模型的必要条件（S7，机器验证）**：S7 的典范框架反模型必须让四条分量
-子公式中至少一条含关系子公式。 -/
+/-- **反模型的必要条件（S7，机器验证）**：与上一条**同形**——结论
+`(a ∧ b) ⊳ (φ ∧ ψ)` 的两个分量不可能都关系自由
+（`NoRel (a ∧ b)` 按定义就是 `NoRel a ∧ NoRel b`）。 -/
 theorem s7_countermodel_needs_rel (W : Type) [Nonempty W]
     (atomRel : Nat → List (PSet W) → PSet W) {a b φ ψ : Form}
     (h₁ : Derivable (a ⊳ φ)) (h₂ : Derivable (b ⊳ ψ))
     (h : ¬ (Canon.frame W atomRel).Valid (Form.and a b ⊳ Form.and φ ψ)) :
+    ¬ (NoRel (Form.and a b) ∧ NoRel (Form.and φ ψ)) :=
+  fun hrel => h (s7_valid_canon_of_noRel W atomRel h₁ h₂
+    hrel.1.1 hrel.2.1 hrel.1.2 hrel.2.2)
+
+/-- S7 反模型必要条件的**展开写法**（与 4 条分量子公式一一对应，便于与其它障碍并读）。 -/
+theorem s7_countermodel_needs_rel' (W : Type) [Nonempty W]
+    (atomRel : Nat → List (PSet W) → PSet W) {a b φ ψ : Form}
+    (h₁ : Derivable (a ⊳ φ)) (h₂ : Derivable (b ⊳ ψ))
+    (h : ¬ (Canon.frame W atomRel).Valid (Form.and a b ⊳ Form.and φ ψ)) :
     ¬ (NoRel a ∧ NoRel φ ∧ NoRel b ∧ NoRel ψ) :=
-  fun hrel => h (s7_valid_canon_of_noRel W atomRel h₁ h₂ hrel.1 hrel.2.1 hrel.2.2.1 hrel.2.2.2)
+  fun hrel => s7_countermodel_needs_rel W atomRel h₁ h₂ h
+    ⟨⟨hrel.1, hrel.2.2.1⟩, ⟨hrel.2.1, hrel.2.2.2⟩⟩
 
 /-! ## 4. 与既有障碍链的关系（不要夸大）
 
 * `System/NonAdmissible.lean` 第十一节的两条必然条件
   （`support_transitivity_middle_truth_top`：反例处 `⟦b⟧ = ⊤`；
   `countermodel_formula_truth_ne_top`：反例处 `⟦c⟧ ≠ ⊤`）说的是**真值形状**；
-  本文件的两条必要条件说的是**语法形状**（分量里必须出现关系子公式）。
-  两者**互相独立**，可以同时对反例施加限制；
+  本文件的必要条件说的是**语法形状**：**结论的两个分量**中必须有一个含关系子公式
+  （中间公式 `b` 反而可以任意）。两者**互相独立**，可以同时对反例施加限制；
 * `RestrictedE`／`Conditional` 与本文件是**三条互不包含**的路线：
-  前者限制 `E` 的源公式，中者以 `TransferLemma` 为假设，本文件要求分量 `NoRel`；
+  前者限制 `E` 的源公式，中者以 `TransferLemma` 为假设，本文件要求**结论分量** `NoRel`；
 * 因此本文件**没有**攻下账本中剩下两条（`docs/主要结果.md` 第 6 节），
   它做的是**把窗口关小**：现在任何反例都必须同时满足
-  「中间公式真值为 `⊤`」与「某个分量含关系子公式」。
+  「中间公式真值为 `⊤`」与「结论的某个分量含关系子公式」。
 -/
 
 end EvidenceLogic

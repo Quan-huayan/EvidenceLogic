@@ -504,6 +504,16 @@ theorem strict_supp_le (W : Type) [Nonempty W] (atomRel : Nat → List (PSet W) 
   rw [strict_frame_truth W atomRel p ρ] at hs
   exact hs
 
+/-- **严格蕴含框架上的支持传递：分量不等式**（全量 `Derivable`、**无条件**）。
+两条前提各给一次 `strict_supp_le`，串联即得。这个"链"是
+[`Frontier/NoRelFragment.lean`] 中「结论的两个分量关系自由 ⇒ 典范框架有效」的直接来源：
+**中间公式可以任意**（可以含关系子公式）。 -/
+theorem strict_supp_le_trans (W : Type) [Nonempty W] (atomRel : Nat → List (PSet W) → PSet W)
+    {a b c : Form} (h₁ : Derivable (a ⊳ b)) (h₂ : Derivable (b ⊳ c)) :
+    ∀ ρ : Nat → PSet W,
+      (strictBase W atomRel).truth a ρ ≤ (strictBase W atomRel).truth c ρ :=
+  fun ρ => PSet.le_trans (strict_supp_le W atomRel h₁ ρ) (strict_supp_le W atomRel h₂ ρ)
+
 /-- **定稿设计理由的机器验证**：在严格蕴含框架里，支持传递的**规则形式**
 （前提在框架中有效则结论有效）成立——这正是 `Model/Canonical.lean` 开头
 「语义不能退化为朴素的 `X ≤ Y` 蕴含读法（否则支持传递将成为有效式）」所述的反事实。
@@ -533,7 +543,7 @@ theorem strict_transitivity_valid (W : Type) [Nonempty W]
   intro ρ
   have hle : (strictFrame W atomRel).truth a ρ ≤ (strictBase W atomRel).truth c ρ := by
     rw [strict_frame_truth W atomRel a ρ]
-    exact PSet.le_trans (strict_supp_le W atomRel h₁ ρ) (strict_supp_le W atomRel h₂ ρ)
+    exact strict_supp_le_trans W atomRel h₁ h₂ ρ
   exact PSet.eq_top_of_le (fun _ _ => hle)
 
 /-- **严格蕴含框架上的 S7（可推导版）**：两个前提都可推导时结论在框架中有效。 -/

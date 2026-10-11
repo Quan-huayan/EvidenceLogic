@@ -23,6 +23,7 @@ import EvidenceLogic.Model.Semantics
 import EvidenceLogic.Model.Canonical
 import EvidenceLogic.Model.Soundness
 import EvidenceLogic.Model.Strict
+import EvidenceLogic.Model.Threshold
 
 -- System：证明系统与定稿第八／九／十节
 import EvidenceLogic.System.Derivable
