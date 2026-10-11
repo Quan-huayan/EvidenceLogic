@@ -20,7 +20,7 @@
 辅助引理 `rel_of_valid`／`valid_of_rel` 在「关系成立」与「关系公式真值为 `⊤`」
 之间转换（需要一个状态，由 `IsModel.nonempty` 提供）。
 -/
-import EvidenceLogic.Derivable
+import EvidenceLogic.System.Derivable
 
 namespace EvidenceLogic
 namespace Frame

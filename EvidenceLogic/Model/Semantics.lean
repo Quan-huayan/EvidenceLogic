@@ -45,7 +45,7 @@
 
 定稿 F1／F2／P2 形如「`∀x (t R p(x)) ⇒ t R ∀x p(x)`」。Hilbert 型系统中，
 带自由变元的推导读作「对任意赋值成立」，故形式化时这几条规则以**开公式的推导**
-为前提（见 `EvidenceLogic.Derivable`）：F1 由 `t R φ` 得 `t R ∀x φ`（`x ∉ FV(t)`）；
+为前提（见 `EvidenceLogic.System.Derivable`）：F1 由 `t R φ` 得 `t R ∀x φ`（`x ∉ FV(t)`）；
 F2 由 `p R φ` 得 `(∀x p) R φ`（`x ∉ FV(φ)`）；P2 由 `a R c` 与 `(∀x c) S f` 得
 `(∀x a) R ((∀x c) S f)`（`x ∉ FV(f)`）。这与 `IsModel.f1/f2/p2` 的形状一致。
 
@@ -56,8 +56,8 @@ Lean 会退化为良基递归，等式便只是命题性的。为此 `truth` 与
 （以及 `truth_subst` 与 `truth_subst_list`、`truth_upd_notFree` 与
 `truths_upd_notFree`）写成 **mutual 块**，使其成为结构递归，等式保持定义性。
 -/
-import EvidenceLogic.Prelude
-import EvidenceLogic.Syntax
+import EvidenceLogic.Core.Prelude
+import EvidenceLogic.Core.Syntax
 
 namespace EvidenceLogic
 

@@ -9,10 +9,10 @@
 * **关系的关系（11–14）**：`R, S ∈ {⊳, ⊲}` 四种组合下的嵌套导出；
 * **合取与全称推广（15–16）**：公理 `P1`／`P2` 的重述。
 
-为保证自足，本文件只依赖 `EvidenceLogic.Derivable`（它已重导出语义层），
+为保证自足，本文件只依赖 `EvidenceLogic.System.Derivable`（它已重导出语义层），
 不使用 `sorry`／`axiom`，也不引入 Mathlib。
 -/
-import EvidenceLogic.Derivable
+import EvidenceLogic.System.Derivable
 
 namespace EvidenceLogic
 

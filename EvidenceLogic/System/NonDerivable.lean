@@ -39,8 +39,8 @@
 `not_truth_preserving`（用 `⊥ ⊳ ⊥` 可推导而 `⊥` 不有效）与
 `M3_support_does_not_imply_truth`（在 `M3` 中 `F1 ⊳ F2` 既不有效也不可推导）。
 -/
-import EvidenceLogic.Canonical
-import EvidenceLogic.Soundness
+import EvidenceLogic.Model.Canonical
+import EvidenceLogic.Model.Soundness
 
 namespace EvidenceLogic
 

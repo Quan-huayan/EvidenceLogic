@@ -3,3 +3,4 @@ defaultTargets = ["EvidenceLogic"]
 
 [[lean_lib]]
 name = "EvidenceLogic"
+globs = ["EvidenceLogic", "EvidenceLogic.+"]

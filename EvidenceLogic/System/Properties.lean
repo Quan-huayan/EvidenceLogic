@@ -9,9 +9,9 @@
 * 「系统不蕴涵真」——存在可推导的支持陈述，其被支持命题不有效。
 
 「不同支持者支持相反命题不会自动合取」（非加性）是**不可推导性**陈述，
-由 S7 模式的反模型给出，见 `EvidenceLogic.NonDerivable`。
+由 S7 模式的反模型给出，见 `EvidenceLogic.System.NonDerivable`。
 -/
-import EvidenceLogic.Canonical
+import EvidenceLogic.Model.Canonical
 
 namespace EvidenceLogic
 

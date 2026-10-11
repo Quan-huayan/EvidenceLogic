@@ -23,9 +23,9 @@
 
 * `frame_truth`：典范框架的真值与基真值一致；
 * `isModel`：**任意** `W` 与 `atomRel` 下 `frame` 都是模型（存在性定理）；
-* 因此 `EvidenceLogic.NonDerivable` 中的反模型只需选择 `W` 与 `atomRel`。
+* 因此 `EvidenceLogic.System.NonDerivable` 中的反模型只需选择 `W` 与 `atomRel`。
 -/
-import EvidenceLogic.Derivable
+import EvidenceLogic.System.Derivable
 
 namespace EvidenceLogic
 namespace Canon

@@ -25,7 +25,7 @@
 ## 关于 F1／F2／P2 的形状
 
 定稿写作「`∀x (t R p(x)) ⇒ t R ∀x p(x)`」。由于带自由变元的推导在本系统中
-读作「对任意赋值成立」（见 `EvidenceLogic.Semantics` 第四节），
+读作「对任意赋值成立」（见 `EvidenceLogic.Model.Semantics` 第四节），
 这几条规则以**开公式的推导**为前提，即：由 `t R φ`（`x` 可在 `φ` 中自由出现）
 推出 `t R ∀x φ`（副作用条件 `x ∉ FV(t)`）。`f2`、`p2` 同理。
 
@@ -33,9 +33,9 @@
 
 定稿第七节列出的规则不在此归纳定义中，特别地没有：支持传递、反驳传递、
 拆合取／全称支持者、拆嵌套关系、非命题性反驳逆后承、以及 S7（不同主体合取）。
-`EvidenceLogic.NonDerivable` 用模型论证明这些都不是可推导的。
+`EvidenceLogic.System.NonDerivable` 用模型论证明这些都不是可推导的。
 -/
-import EvidenceLogic.Semantics
+import EvidenceLogic.Model.Semantics
 
 namespace EvidenceLogic
 
